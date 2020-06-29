@@ -1,28 +1,10 @@
 # Build a Data Analysis Library from Scratch
 
-This repository contains a detailed project that teaches you how to build your own Python data analysis library, pandas_cub, from scratch. The end result will be a fully-functioning library similar to pandas.
+This repository contains a detailed project that teaches how to build an own Python data analysis library, pandas_cub, from scratch. The end result will be a fully-functioning library similar to pandas.
 
 ## YouTube Video Series
 
-A detailed video series is available at the [Dunder Data YouTube channel][22] that walks you through the entire project.
-
-## Target Student
-
-This project is targeted towards those who understand the fundamentals
-of Python and would like to immerse themselves into a larger, highly structured project that covers some advanced topics. It also touches upon a few crucial areas of software development.
-
-## Pre-Requisites
-
-This is not a project suitable for beginning Python users. At a minimum you will need to have a solid understanding of the fundamentals such as:
-
-* Basic types and common data structures (lists, tuples, sets, and dictionaries)
-* Control flow with if/else statements and for loops (especially when iterating through lists or dictionaries)
-* Raising and handling exceptions
-* You will need to have covered the basics of classes and object-oriented programming. If you have never defined a class before, I strongly recommend going through an introductory tutorial on them first. [This one][15] from Corey Shafer is good.
-
-In addition to those Python basics, the main workhorse is the numpy library. The project will be difficult to complete without prior exposure to numpy. This [quickstart guide][16] might be beneficial for those needing to catch up quickly.
-
-We will not be using the pandas library within our code, but will be implementing many of the same method names with similar parameters and functionality. It will be very beneficial to have some exposure to pandas before beginning.
+A detailed video series is available at the [Dunder Data YouTube channel][22] that walks through the entire project.
 
 ## Objectives
 
@@ -38,18 +20,9 @@ Most data scientists who use Python rely on pandas. In this assignment, we will 
 * Have methods specific to string columns
 * Read in data from a comma-separated value file
 
-In addition to these items specific to data analysis, you will also learn about:
-
-* Creating a development environment
-* Test-Driven Development
-
 ## Setting up the Development Environment
 
-I recommend creating a new environment using the conda package manager. If you do not have conda, you can [download it here][0] along with the entire Anaconda distribution. Choose Python 3. When beginning development on a new library, it's a good idea to use a completely separate environment to write your code.
-
-### Create the environment with the `environment.yml` file
-
-Conda allows you to automate the environment creation with an `environment.yml` file. The contents of the file are minimal and are displayed below.
+You can create the environment with the `environment.yml` file. The contents of the file are minimal and are displayed below. It will create a new environment named `pandas_cub`.
 
 ```yml
 name: pandas_cub
@@ -60,52 +33,10 @@ dependencies:
 - pytest
 ```
 
-This file will be used to create a new environment named `pandas_cub`. It will install Python 3.6 in a completely separate directory in your file system along with pandas, jupyter, and pytest. There will actually be many more packages installed as those libraries have dependencies of their own. Visit [this page][2] for more information on conda environments.
-
-### Command to create new environment
-
-In the top level directory of this repository, where the `environment.yml` file is located, run the following from your command line.
-
-`conda env create -f environment.yml`
-
-The above command will take some time to complete. Once it completes, the environment will be created.
-
-### List the environments
-
-Run the command `conda env list` to show all the environments you have. There will be a `*` next to the active environment, which will likely be `base`, the default environment that everyone starts in.
-
-### Activate the pandas_cub environment
-
-Creating the environment does not mean it is active. You must activate in order to use it. Use the following command to activate it.
-
-`conda activate pandas_cub`
-
-You should see `pandas_cub` in parentheses preceding your command prompt. You can run the command `conda env list` to confirm that the `*` has moved to `pandas_cub`.
-
-### Deactivate environment
-
-You should only use the `pandas_cub` environment to develop this library. When you are done with this session, run the command `conda deactivate` to return to your default conda environment.
-
 ## Test-Driven Development with pytest
 
 The completion of each part of this project is predicated upon passing the
 tests written in the `test_dataframe.py` module inside the `tests` folder.
-
-We will rely upon the [pytest library][1] to test our code. We installed it along with a command line tool with the same name during our environment creation.
-
-[Test-Driven development][3] is a popular approach for developing software. It involves writing tests first and then writing code that passes the tests.
-
-### Testing
-
-All the tests have already been written and are located in the `test_dataframe.py` module found in the `tests` directory. There are about 100 tests that you will need to pass to complete the project. To run all the tests in this file run the following on the command line.
-
-`$ pytest tests/test_dataframe.py`
-
-If you run this command right now, all the tests will fail. You should see a line of red capital 'F's. As you complete the steps in the project, you will start passing the tests. There are about 100 total tests. Once all the tests are passed, the project will be complete.
-
-### Automated test discovery
-
-The pytest library has [rules for automated test discovery][4]. It isn't necessary to supply the path to the test module if your directories and module names follow those rules. You can simply run `pytest` to run all the tests in this library.
 
 ### Running specific tests
 
@@ -117,244 +48,6 @@ It is possible to run just a single test by appending two more colons followed b
 
 `$ pytest tests/test_dataframe.py::TestDataFrameCreation::test_input_types`
 
-## Installing an IPython Kernel for Jupyter
-
-Although we have set up our development environment to work on the command line, we need to make a few more steps to hook it up with Jupyter Notebooks correctly.
-
-This is important, because Jupyter Notebooks are good for manually testing code as you will see below.
-
-### Launch a Jupyter Notebook
-
-Within the `pandas_cub` environment, launch a Jupyter Notebook with the command `jupyter notebook`. When the home page finishes loading in your browser open up the `Test Notebook.ipynb` notebook.
-
-### Changing the environment within Jupyter
-
-Although we launched our Jupyter Notebook within the `pandas_cub` environment, our code may not be executed within the `pandas_cub` environment at first. If that sounds bizarre and non-intuitive then you have reached the same conclusion as me. It is possible to run any python executable from a Jupyter Notebook regardless of the environment that it was launched from.
-
-If you run the first cell of the notebook (shown below) you can verify the location in your file system where Python is getting executed.
-
-**One of two possibilities can happen**
-
-If the value outputted from `sys.executable` is in the pandas_cub environment, it will have a path that ends like this:
-
-`anaconda3/envs/pandas_cub/bin/python`
-
-If this is your output, you can skip the rest of this step.
-
-If the value outputted from `sys.executable` ends with the following:
-
-`anaconda3/bin/python`
-
-then you are actually not executing python from the `pandas_cub` environment. You need to complete the rest of the step.
-
-![][17]
-
-Exit out of Jupyter and return to the command line. We need to create a new [Kernel][18], a program that "runs and introspects the user’s code"
-
-Thankfully there is a command we can run with the `ipykernel` package to automatically create a new kernel. The `ipykernel` package should get installed during environment creation.
-
-The following command creates the Kernel. Make sure you have activated the `pandas_cub` environment first. You can read more about this command [in the documentation][19].
-
-```bash
-python -m ipykernel install --user --name pandas_cub --display-name "Python (pandas_cub)"
-```
-
-You may verify that the `pandas_cub` Kernel was created with the following command:
-
-```bash
-jupyter kernelspec list
-```
-
-### Launch Jupyter Again
-
-Launch Jupyter again and open up the `Test Notebook.ipynb` notebook. You will still NOT be in the `pandas_cub` environment. You need to navigate inside the 'Kernel' menu above and into 'Change kernel'. Finally, you can select the 'Python (pandas_cub)' Kernel which will place you in the right environment. The kernel will restart once you choose this option.
-
-![][20]
-
-Run the first cell of the notebook again and you should see that the Python executable is coming from the `pandas_cub` environment directory.
-
-![][21]
-
-You don't have to do this procedure again or this notebook. From now on, it will open up using the `pandas_cub` Kernel that was created. You can of course change the Kernel again but this is its new default. To verify this, shutdown the notebook and restart it.
-
-If you start a new notebook, you will have the option to decide which Kernel you would like to run it with.
-
-## Inspecting the `__init__.py` File
-
-You will be editing a single file for this project - the `__init__.py` file
-found in the `pandas_cub` directory. It contains skeleton code for the entire project. You won't be defining your own classes or methods, but you will be filling out the method bodies.
-
-Open up this file now. You will see many incomplete methods that have the keyword `pass` as their last line. These are the methods that you will be editing. A few methods are complete and won't need editing.
-
-### Docstrings
-
-You'll notice that all the methods have triple quoted strings directly beneath them. These strings are the documentation or 'docstrings'. All docstrings begin with a short summary of what the method does. A Parameters section follows thats lists each parameter, its type, and a description of how its used. The docstrings end with a Returns section that informs the user of what type of object is returned. It's important to read them as they contain information on how to complete the methods.
-
-There are many ways you can write docstrings, but these follow the [numpy docstring guide][7]. There are many other sections you may add to them as well.
-
-## Importing pandas_cub
-
-Return back to the Jupyter notebook, which should already be open. This notebook is at the same level as the inner `pandas_cub` directory. This means that we can import `pandas_cub` directly into our namespace without changing directories. Technically, `pandas_cub` is a Python **package**, which is a directory containing a `__init__.py` file. It is this initialization file that gets run when we write `import pandas_cub as pdc`.
-
-## Manually Test in a Jupyter Notebook
-
-During development, it's good to have a place to manually experiment with your new code so you can see it in action. We will be using the Jupyter Notebook to quickly see how our DataFrame is changing.
-
-### Autoreloading
-
-The second cell loads a notebook magic extension which automatically reloads code from files that have changed. Normally, we would have to restart the kernel if we made changes to our code to see it reflect its current state. This magic command saves us from doing this.
-
-### Imports
-
-Along with `pandas_cub` `pandas_cub_final` is also imported so you can see how the completed object is supposed to behave.
-
-We import the `pandas` library so that you can compare and contrast its functionality.
-
-### A test DataFrame
-
-A simple test DataFrame is created for `pandas_cub`, `pandas_cub_final`, and `pandas`. The output for all three DataFrames are produced in the notebook. There currently is no nice visual representation for `pandas_cub` DataFrames.
-
-## Starting Pandas Cub
-
-Keep the `__init__.py` file open at all times. This is the only file that you will be editing. Read and complete each numbered step below. Edit the method indicated in each step and then run the test. Once you pass that test, move on to the next step.
-
-### The answer is in pandas_cub_final
-
-The `pandas_cub_final` directory contains the completed `__init__.py` file with the code that passes all the tests. Only look at this file after you have attempted to complete each step on your own.
-
-### 1. Check DataFrame constructor input types
-
-Our DataFrame class is constructed with a single parameter, `data`. Python will call the special `__init__` method when first constructing our DataFrame. This method has already been completed for you and you will not need to edit it. Within the `__init__` method, several more methods are called that check to see if the user has passed it valid data. You will be editing these methods during the next few steps.
-
-In this step, you will only be editing the `_check_input_types` method. This is the first method called within the `__init__` method. It will ensure that our users have passed us a valid `data` parameter.
-
-We are going to force our users to set `data` as a dictionary that has strings as the keys and one-dimensional numpy arrays as the values. The keys will eventually become the column names and the arrays will be the values of those columns.
-
-Specifically, `_check_input_types` must do the following:
-
-* raise a `TypeError` if `data` is not a dictionary
-* raise a `TypeError` if the keys of `data` are not strings
-* raise a `TypeError` if the values of `data` are not numpy arrays
-* raise a `ValueError` if the values of `data` are not 1-dimensional
-
-Edit this method now. Use the `isinstance` function to help you determine the type of an object.
-
-Run the following command to test this step. Once you have passed this test move on to the next step.
-
-`$ pytest tests/test_dataframe.py::TestDataFrameCreation::test_input_types`
-
-### 2. Check array lengths
-
-We are now guaranteed that `data` is a dictionary of strings mapped to one-dimensional arrays. Each column of data in our DataFrame must have the same number of elements. In this step, you must ensure that this is the case. Edit the `_check_array_lengths` method and raise a `ValueError` if any of the arrays differ in length.
-
-Run the following test:
-
-`$ pytest tests/test_dataframe.py::TestDataFrameCreation::test_array_length`
-
-### 3. Convert unicode arrays to object
-
-Whenever you create a numpy array of Python strings, it will default the data type of that array to unicode. Take a look at the following simple numpy array created from strings. Its data type, found in the `dtype` attribute is shown to be 'U' plus the length of the longest string.
-
-```python
->>> a = np.array(['cat', 'dog', 'snake'])
->>> a.dtype
-dtype('<U5')
-```
-
-Unicode arrays are more difficult to manipulate and don't have the flexibility that we desire. So, if our user passes us a Unicode array, we will convert it to a data type called 'object'. This is a flexible type and will help us later when creating methods just for string columns. Technically, this data type allows any Python objects within the array.
-
-In this step, you will change the data type of Unicode arrays to object. You will do this by checking each arrays data type `kind`. The data type `kind` is a single-character value available by doing `array.dtype.kind`. See the [numpy docs][8] for a list of all the available kinds. Let's retrieve the kind of our array from above.
-
-```python
->>> a.dtype.kind
-'U'
-```
-
- Pass the `astype` array method the correct kind character to change its type.
-
-Edit the `_convert_unicode_to_object` method and fill the dictionary `new_data` with the converted arrays. The result of this method will be returned and assigned as the `_data` instance variable.
-
-Run `test_unicode_to_object` to test.
-
-### A note on names that begin with a single underscore
-
-So far we have seen a few examples of attribute and method names within our DataFrame class that begin with a single underscore. These names are intended to be 'private' and not directly accessed by our users. This doesn't prevent our users from accessing these names as nothing is technically private in Python, but it is common convention and discussed in [this section of the PEP8 style guide][9].
-
-Most IDEs will not show these private methods as choices to the users which is a good thing. They are not at all meant to be accessed by them.
-
-### 4. Find the number of rows in the DataFrame with the `len` function
-
-The number of rows are returned when passing a pandas DataFrame to the builtin `len` function. We will make pandas_cub behave the same exact way.
-
-To do so we need to implement the special method `__len__`. This is what Python calls whenever an object is passed to the `len` function.
-
-Edit the `__len__` method and have it return the number of rows. Test with `test_len`.
-
-### Special Methods
-
-Step 4 introduced us to the `__len__` 'special method'. Python has over 100 special methods that allow you to define how your class behaves when it interacts with a builtin function or operator. In the above example, if `df` is a DataFrame and a user calls `len(df)` then internally the `__len__` method will be called. All special methods begin and end with two underscores.
-
-Let's see a few more examples:
-
-* `df + 5` calls the `__add__` special method
-* `df > 5` calls the `__lt__` special method
-* `-df` calls the `__neg__` special method
-* `round(df)` calls the `__round__` special method
-
-We've actually already seen the special method `__init__` which is used to initialize an object and called when a user calls `DataFrame(data)`.
-
-The [Python documentation][10] has good (though complex) coverage of all the special methods. We will be implementing many more special methods. I strongly recommend to reference the documentation to learn more.
-
-### 5. Return columns as a list
-
-In this step you will make `df.columns` return a list of the column names. Notice that `df.columns` is not a method here. There will be no parentheses that follow it.
-
-Looking at the source code, you will see that `columns` appears to be defined as if it is a method. But, directly above it is the property decorator. The `property` decorator will make `df.columns` work just like a method.
-
-Currently the keys in our `_data` dictionary refer to the columns in our DataFrame. Edit the `columns` 'method' (really a property) to return a list of the columns in order. Since we are working with Python 3.6, the dictionary keys are internally ordered. Take advantage of this. Validate with the `test_columns` test.
-
-### The property decorator
-
-There is quite a bit more to the property decorator, including how its used to set attributes as is done in the next step. [This Stack Overflow question][11] contains a good examples that will explain more.
-
-### 6. Set new column names
-
-In this step, we will be assigning all new columns to our DataFrame by setting the columns property equal to a list. A concrete example below shows how you would set new columns for a 3-column DataFrame.
-
-```python
-df.columns = ['state', 'age', 'fruit']
-```
-
-There are three parts to properties in Python; the getter, setter, and deleter. In the previous step, we defined the getter. In this step we will define the setter with the `columns.setter` decorator. The value on the right hand side of the assignment statement is passed to the method decorated by `columns.setter`. Edit this method and complete the following tasks:
-
-* Raise a `TypeError` if the object used to set new columns is not a list
-* Raise a `ValueError` if the number of column names in the list does not match the current DataFrame
-* Raise a `TypeError` if any of the columns are not strings
-* Raise a `ValueError` if any of the column names are duplicated in the list
-* Reassign the `_data` variable so that all the keys have been updated
-
-Test with `test_set_columns`.
-
-### 7. The `shape` property
-
-The `shape` property will return a two-item tuple of the number of rows and columns. The property decorator is used again here so that `df.shape` can execute code like a method. We could just make it a normal method and invoke it with `df.shape()` but we are following pandas lead and keeping `shape` as a property.
-
-Test with `test_shape`.
-
-### 8. Visual HTML representation in the notebook with the `_repr_html_` method
-
-Currently we have no representation of our DataFrame. If you try and output your DataFrame, you'll just get its location in memory and it will look something like this:
-
-```python
->>> df
-<pandas_cub.DataFrame at 0x116d405c0>
-```
-
-The `_repr_html_` method is made available to developers by iPython so that your objects can have nicely formatted HTML displays within Jupyter Notebooks. Read more on this method [here in the iPython documentation][12] along with other similar methods for different representations.
-
-This method must return a string of html. This method is fairly complex and you must know some basic html to complete it. I recommend copying and pasting the implementation from pandas_cub_final instead of doing it yourself.
-
-If you do know HTML and are seeking a greater challenger use the docstrings to give you an idea of how the HTML may be formatted. There are no tests for this method.
 
 ### 9. The `values` property
 

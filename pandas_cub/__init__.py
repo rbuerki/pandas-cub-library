@@ -1,20 +1,18 @@
+from typing import Dict, List, Tuple
 import numpy as np
 
-__version__ = '0.0.1'
+__version__ = "0.0.1"
 
 
 class DataFrame:
+    def __init__(self, data: Dict) -> None:
+        """A DataFrame holds tabular data orginzed by index and columns.
+        Create it by passing a dictionary of NumPy arrays to the values
+        parameter.
 
-    def __init__(self, data):
-        """
-        A DataFrame holds two dimensional heterogeneous data. Create it by
-        passing a dictionary of NumPy arrays to the values parameter
-
-        Parameters
-        ----------
-        data: dict
-            A dictionary of strings mapped to NumPy arrays. The key will
-            become the column name.
+        Args:
+            data: A dictionary of strings mapped to NumPy arrays.
+            The keys will become the column names.
         """
         # check for correct input types
         self._check_input_types(data)
@@ -29,106 +27,260 @@ class DataFrame:
         self.str = StringMethods(self)
         self._add_docs()
 
-    def _check_input_types(self, data):
-        pass
+    def _check_input_types(self, data: Dict) -> None:
+        """Perform several checks to make sure that the input data is
+        in the right format. Raise errors if not.
 
-    def _check_array_lengths(self, data):
-        pass
+        Args:
+            data: A dictionary of strings mapped to NumPy arrays.
 
-    def _convert_unicode_to_object(self, data):
+        Raises:
+            TypeError: If `data`is not of type dict.
+            TypeError: If keys of `data` are not of type string.
+            TypeError: If values of `data` are not of type np.ndarray.
+            ValueError: If the arrays are not one-dimensional.
+        """
+        if not isinstance(data, dict):
+            raise TypeError("`data` must be a dictionary.")
+        for key, value in data.items():
+            if not isinstance(key, str):
+                raise TypeError("Keys of `data` must be strings.")
+            if not isinstance(value, np.ndarray):
+                raise TypeError("Values of `data`must be numpy arrays.")
+            if value.ndim != 1:
+                raise ValueError(
+                    "Values of `data` must be a one-dimensional array."
+                )
+
+    def _check_array_lengths(self, data: Dict) -> None:
+        """Perform a check to make sure that the all arrays in `data`
+        the same length. Raise error if not.
+
+        Args:
+            data: A dictionary of strings mapped to NumPy arrays.
+
+        Raises:
+            ValueError: If the arrays are not the same length.
+        """
+        for i, value in enumerate(data.values()):
+            if i == 0:
+                length = len(value)
+            elif length != len(value):
+                raise ValueError(
+                    " All values of `data` must be the same length."
+                )
+
+    def _convert_unicode_to_object(self, data: Dict) -> Dict:
+        """Change the data type of Unicode arrays in `data` to object.
+        Return a new dict with the transformed data.
+
+        Args:
+            data: A dictionary of strings mapped to NumPy arrays.
+
+        Returns:
+            Dict: A dictionary where the data type for string arrays
+            has been changed from unicode to object.
+
+        Note:
+            Whenever you create a numpy array of Python strings, it will
+            default the data type of that array to unicode. Take a look at
+            the following simple numpy array created from strings. Its
+            data type, found in the `dtype` attribute is shown to be 'U'
+            plus the length of the longest string.
+
+            ```python
+            >>> a = np.array(['cat', 'dog', 'snake'])
+            >>> a.dtype
+            dtype('<U5')
+            ```
+
+            Unicode arrays are more difficult to manipulate and don't
+            have the flexibility that we desire. So, if our user
+            passes us a Unicode array, we will convert it to a data type
+            called 'object'. This is a flexible type and will help us
+            later when creating methods just for string columns. Technically,
+            this data type allows any Python objects within the array.
+
+            In this funciton we do this by checking each arrays data type `kind`.
+            The data type `kind` is a single-character value available by
+            doing `array.dtype.kind`. See the [numpy docs][8]
+            for a list of all the available kinds.
+
+        Additional info:
+            https://docs.scipy.org/doc/numpy/reference/generated/numpy.dtype.kind.html#numpy.dtype.kind  # noqa: B950
+        """
         new_data = {}
+        for key, value in data.items():
+            if value.dtype.kind == "U":
+                value = value.astype("O")
+            new_data[key] = value
         return new_data
 
     def __len__(self):
-        """
-        Make the builtin len function work with our dataframe
+        """Make the builtin len function work with our dataframe. To do so
+        we need to implement the special method `__len__`. This is what
+        Python calls whenever an object is passed to the `len` function.
 
-        Returns
-        -------
-        int: the number of rows in the dataframe
+        Returns:
+            int: The number of rows in the dataframe.
+
+        Note:
+            Python has over 100 special methods that allow you to define
+            how your class behaves when it interacts with a builtin
+            function or operator. In the above example, if `df` is a
+            DataFrame and a user calls `len(df)` then internally the
+            `__len__` method will be called. All special methods begin
+            and end with two underscores.
+
+            Let's see a few more examples:
+
+            * `df + 5` calls the `__add__` special method
+            * `df > 5` calls the `__lt__` special method
+            * `-df` calls the `__neg__` special method
+            * `round(df)` calls the `__round__` special method
+
+            We've actually already seen the special method `__init__`
+            which is used to initialize an object and called when a
+            user calls `DataFrame(data)`.
+
+        Additional info:
+            https://docs.python.org/3/reference/datamodel.html#specialnames
         """
-        pass
+        return len(next(iter(self._data.values())))
 
     @property
-    def columns(self):
+    def columns(self) -> List[str]:
         """
-        _data holds column names mapped to arrays
-        take advantage of internal ordering of dictionaries to
-        put columns in correct order in list. Only works in 3.6+
+        Retrieve the column names from `_data` and return a list of the
+        columns in order. (Only works in Python 3.6+)
 
-        Returns
-        -------
-        list of column names
+        Returns:
+            A list of column names.
+
+        Note:
+            Notice that `df.columns` is not a method here. (There are no
+            parentheses that follow it. The `property` decorator will turn
+            `df.columns` into an attribute (that works just like a method).
+
+            There are three parts to properties in Python; the getter, setter,
+            and deleter. This is the getter. The next function defines the
+            setter. (We will not implement the deleter.)
+
+        Additional info:
+            https://stackoverflow.com/questions/17330160/how-does-the-property-decorator-work  # noqa: B950
+
         """
-        pass
+        return list(self._data)
 
     @columns.setter
-    def columns(self, columns):
-        """
-        Must supply a list of columns as strings the same length
-        as the current DataFrame
+    def columns(self, columns: List[str]):
+        """Set new column names from a list and update the property of the
+        actual dataframe.
 
-        Parameters
-        ----------
-        columns: list of strings
+        Args:
+            columns: List of column names.
 
-        Returns
-        -------
-        None
+        Raises:
+            TypeError: If the object used to set new columns is not a list.
+            ValueError: If the number of column names in the list does
+                not match the current DataFrame.
+            TypeError: If any of the columns are not strings.
+            ValueError: If any of the column names are duplicated in the list.
         """
-        pass
+        if not isinstance(columns, list):
+            raise TypeError("`columns` must be a list.")
+        if not len(columns) == len(self._data):
+            raise ValueError(
+                "`columns` must be of same length as the current dataframe."
+            )
+        for col in columns:
+            if not isinstance(col, str):
+                raise TypeError("All values of `columns` must be strings.")
+        if len(set(columns)) != len(columns):
+            raise ValueError("Alle values of `columns` must be unique.")
+        self._data = dict(zip(columns, self._data.values()))
 
     @property
-    def shape(self):
-        """
-        Returns
-        -------
-        two-item tuple of number of rows and columns
-        """
-        pass
+    def shape(self) -> Tuple[int, int]:
+        """Return a two-item tuple of the number of rows and columns."""
+        return (
+            len(self),
+            len(self._data),
+        )
 
     def _repr_html_(self):
         """
-        Used to create a string of HTML to nicely display the DataFrame
-        in a Jupyter Notebook. Different string formatting is used for
-        different data types.
+        Create a string of HTML to nicely display the DataFrame in a
+        Jupyter Notebook. 
 
-        The structure of the HTML is as follows:
-        <table>
-            <thead>
-                <tr>
-                    <th>data</th>
-                    ...
-                    <th>data</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>{i}</strong></td>
-                    <td>data</td>
-                    ...
-                    <td>data</td>
-                </tr>
-                ...
-                <tr>
-                    <td><strong>{i}</strong></td>
-                    <td>data</td>
-                    ...
-                    <td>data</td>
-                </tr>
-            </tbody>
-        </table>
+        Note:
+            The `_repr_html_` method is made available to developers
+            by iPython so that your objects can have nicely formatted
+            HTML displays within Jupyter Notebooks.
+
+        More information:
+            https://ipython.readthedocs.io/en/stable/config/integrating.html
         """
-        pass
+        html = "<table><thead><tr><th></th>"
+        for col in self.columns:
+            html += f"<th>{col:10}</th>"
+
+        html += "</tr></thead>"
+        html += "<tbody>"
+
+        only_head = False
+        num_head = 10
+        num_tail = 10
+        if len(self) <= 20:
+            only_head = True
+            num_head = len(self)
+
+        for i in range(num_head):
+            html += f"<tr><td><strong>{i}</strong></td>"
+            for _col, values in self._data.items():
+                kind = values.dtype.kind
+                if kind == "f":
+                    html += f"<td>{values[i]:10.3f}</td>"
+                elif kind == "b":
+                    html += f"<td>{values[i]}</td>"
+                elif kind == "O":
+                    v = values[i]
+                    if v is None:
+                        v = "None"
+                    html += f"<td>{v:10}</td>"
+                else:
+                    html += f"<td>{values[i]:10}</td>"
+            html += "</tr>"
+
+        if not only_head:
+            html += "<tr><strong><td>...</td></strong>"
+            for _i in range(len(self.columns)):
+                html += "<td>...</td>"
+            html += "</tr>"
+            for i in range(-num_tail, 0):
+                html += f"<tr><td><strong>{len(self) + i}</strong></td>"
+                for _col, values in self._data.items():
+                    kind = values.dtype.kind
+                    if kind == "f":
+                        html += f"<td>{values[i]:10.3f}</td>"
+                    elif kind == "b":
+                        html += f"<td>{values[i]}</td>"
+                    elif kind == "O":
+                        v = values[i]
+                        if v is None:
+                            v = "None"
+                        html += f"<td>{v:10}</td>"
+                    else:
+                        html += f"<td>{values[i]:10}</td>"
+                html += "</tr>"
+
+        html += "</tbody></table>"
+        return html
 
     @property
-    def values(self):
-        """
-        Returns
-        -------
-        A single 2D NumPy array of the underlying data
-        """
-        pass
+    def values(self) -> np.array:
+        """Return a single 2D NumPy array of the underlying data."""
+        return np.column_stack(list(self._data.values()))
 
     @property
     def dtypes(self):
@@ -138,7 +290,7 @@ class DataFrame:
         A two-column DataFrame of column names in one column and
         their data type in the other
         """
-        DTYPE_NAME = {'O': 'string', 'i': 'int', 'f': 'float', 'b': 'bool'}
+        # DTYPE_NAME = {"O": "string", "i": "int", "f": "float", "b": "bool"}
         pass
 
     def __getitem__(self, item):
@@ -190,14 +342,14 @@ class DataFrame:
         Parameters
         ----------
         n: int
-        
+
         Returns
         -------
         DataFrame
         """
         pass
 
-    #### Aggregation Methods ####
+    # ### Aggregation Methods ####
 
     def min(self):
         return self._agg(np.min)
@@ -240,7 +392,7 @@ class DataFrame:
         Parameters
         ----------
         aggfunc: str of the aggregation function name in NumPy
-        
+
         Returns
         -------
         A DataFrame
@@ -310,7 +462,7 @@ class DataFrame:
         ----------
         columns: dict
             A dictionary mapping the old column name to the new column name
-        
+
         Returns
         -------
         A DataFrame
@@ -331,7 +483,7 @@ class DataFrame:
         """
         pass
 
-    #### Non-Aggregation Methods ####
+    # ### Non-Aggregation Methods ####
 
     def abs(self):
         """
@@ -412,7 +564,7 @@ class DataFrame:
     def _non_agg(self, funcname, **kwargs):
         """
         Generic non-aggregation function
-    
+
         Parameters
         ----------
         funcname: numpy function
@@ -437,8 +589,10 @@ class DataFrame:
         -------
         A DataFrame
         """
+
         def func():
             pass
+
         return self._non_agg(func)
 
     def pct_change(self, n=1):
@@ -454,65 +608,67 @@ class DataFrame:
         -------
         A DataFrame
         """
+
         def func():
             pass
+
         return self._non_agg(func)
 
-    #### Arithmetic and Comparison Operators ####
+    # ### Arithmetic and Comparison Operators ####
 
     def __add__(self, other):
-        return self._oper('__add__', other)
+        return self._oper("__add__", other)
 
     def __radd__(self, other):
-        return self._oper('__radd__', other)
+        return self._oper("__radd__", other)
 
     def __sub__(self, other):
-        return self._oper('__sub__', other)
+        return self._oper("__sub__", other)
 
     def __rsub__(self, other):
-        return self._oper('__rsub__', other)
+        return self._oper("__rsub__", other)
 
     def __mul__(self, other):
-        return self._oper('__mul__', other)
+        return self._oper("__mul__", other)
 
     def __rmul__(self, other):
-        return self._oper('__rmul__', other)
+        return self._oper("__rmul__", other)
 
     def __truediv__(self, other):
-        return self._oper('__truediv__', other)
+        return self._oper("__truediv__", other)
 
     def __rtruediv__(self, other):
-        return self._oper('__rtruediv__', other)
+        return self._oper("__rtruediv__", other)
 
     def __floordiv__(self, other):
-        return self._oper('__floordiv__', other)
+        return self._oper("__floordiv__", other)
 
     def __rfloordiv__(self, other):
-        return self._oper('__rfloordiv__', other)
+        return self._oper("__rfloordiv__", other)
 
     def __pow__(self, other):
-        return self._oper('__pow__', other)
+        return self._oper("__pow__", other)
 
     def __rpow__(self, other):
-        return self._oper('__rpow__', other)
+        return self._oper("__rpow__", other)
 
     def __gt__(self, other):
-        return self._oper('__gt__', other)
+        return self._oper("__gt__", other)
 
     def __lt__(self, other):
-        return self._oper('__lt__', other)
+        return self._oper("__lt__", other)
 
     def __ge__(self, other):
-        return self._oper('__ge__', other)
+        return self._oper("__ge__", other)
 
     def __le__(self, other):
-        return self._oper('__le__', other)
+        return self._oper("__le__", other)
 
     def __ne__(self, other):
-        return self._oper('__ne__', other)
+        return self._oper("__ne__", other)
 
     def __eq__(self, other):
-        return self._oper('__eq__', other)
+        return self._oper("__eq__", other)
 
     def _oper(self, op, other):
         """
@@ -586,12 +742,22 @@ class DataFrame:
         pass
 
     def _add_docs(self):
-        agg_names = ['min', 'max', 'mean', 'median', 'sum', 'var',
-                     'std', 'any', 'all', 'argmax', 'argmin']
-        agg_doc = \
-        """
+        agg_names = [
+            "min",
+            "max",
+            "mean",
+            "median",
+            "sum",
+            "var",
+            "std",
+            "any",
+            "all",
+            "argmax",
+            "argmin",
+        ]
+        agg_doc = """
         Find the {} of each column
-        
+
         Returns
         -------
         DataFrame
@@ -601,7 +767,6 @@ class DataFrame:
 
 
 class StringMethods:
-
     def __init__(self, df):
         self._df = df
 
@@ -610,7 +775,7 @@ class StringMethods:
 
     def center(self, col, width, fillchar=None):
         if fillchar is None:
-            fillchar = ' '
+            fillchar = " "
         return self._str_method(str.center, col, width, fillchar)
 
     def count(self, col, sub, start=None, stop=None):
@@ -687,7 +852,7 @@ class StringMethods:
     def zfill(self, col, width):
         return self._str_method(str.zfill, col, width)
 
-    def encode(self, col, encoding='utf-8', errors='strict'):
+    def encode(self, col, encoding="utf-8", errors="strict"):
         return self._str_method(str.encode, col, encoding, errors)
 
     def _str_method(self, method, col, *args):
