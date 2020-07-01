@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 import numpy as np
 
 __version__ = "0.0.1"
@@ -283,18 +283,21 @@ class DataFrame:
         return np.column_stack(list(self._data.values()))
 
     @property
-    def dtypes(self):
+    def dtypes(self) -> Any:
+        """Return a two-column DataFrame of column names in one column and
+        their data type in the other.
         """
-        Returns
-        -------
-        A two-column DataFrame of column names in one column and
-        their data type in the other
-        """
-        # DTYPE_NAME = {"O": "string", "i": "int", "f": "float", "b": "bool"}
-        pass
+        DTYPE_NAME = {"O": "string", "i": "int", "f": "float", "b": "bool"}
+        col_names = np.array(list(self._data.keys()))
+        dtypes = [DTYPE_NAME[value.dtype.kind] for value in self._data.values()]
+        dtypes = np.array(dtypes)
+
+        dtype_dict = {"Column Name": col_names, "Data Type": dtypes}
+        return DataFrame(dtype_dict)
 
     def __getitem__(self, item):
-        """
+        """Select a single column with  bracket notation.
+        
         Use the brackets operator to simultaneously select rows and columns
         A single string selects one column -> df['colname']
         A list of strings selects multiple columns -> df[['colname1', 'colname2']]
@@ -307,7 +310,7 @@ class DataFrame:
         -------
         A subset of the original DataFrame
         """
-        pass
+        pass xxx
 
     def _getitem_tuple(self, item):
         # simultaneous selection of rows and cols -> df[rs, cs]
