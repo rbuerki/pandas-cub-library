@@ -46,7 +46,7 @@ class DataFrame:
             if not isinstance(key, str):
                 raise TypeError("Keys of `data` must be strings.")
             if not isinstance(value, np.ndarray):
-                raise TypeError("Values of `data`must be numpy arrays.")
+                raise TypeError("Values of `data` must be numpy arrays.")
             if value.ndim != 1:
                 raise ValueError(
                     "Values of `data` must be a one-dimensional array."
@@ -54,7 +54,7 @@ class DataFrame:
 
     def _check_array_lengths(self, data: Dict) -> None:
         """Perform a check to make sure that the all arrays in `data`
-        the same length. Raise error if not.
+        are the same length. Raise error if not.
 
         Args:
             data: A dictionary of strings mapped to NumPy arrays.
@@ -101,10 +101,10 @@ class DataFrame:
             later when creating methods just for string columns. Technically,
             this data type allows any Python objects within the array.
 
-            In this funciton we do this by checking each arrays data type `kind`.
-            The data type `kind` is a single-character value available by
-            doing `array.dtype.kind`. See the [numpy docs][8]
-            for a list of all the available kinds.
+            In this funciton we do this by checking each arrays data type
+            `kind`. The data type `kind` is a single-character value available
+            by doing `array.dtype.kind`. See the numpy docs for a list of all
+            the available kinds.
 
         Additional info:
             https://docs.scipy.org/doc/numpy/reference/generated/numpy.dtype.kind.html#numpy.dtype.kind  # noqa: B950
@@ -125,7 +125,7 @@ class DataFrame:
             int: The number of rows in the dataframe.
 
         Note:
-            Python has over 100 special methods that allow you to define
+            Python has over 100 special methods that allow us to define
             how your class behaves when it interacts with a builtin
             function or operator. In the above example, if `df` is a
             DataFrame and a user calls `len(df)` then internally the
@@ -203,15 +203,12 @@ class DataFrame:
     @property
     def shape(self) -> Tuple[int, int]:
         """Return a two-item tuple of the number of rows and columns."""
-        return (
-            len(self),
-            len(self._data),
-        )
+        return (len(self), len(self._data))
 
     def _repr_html_(self):
         """
         Create a string of HTML to nicely display the DataFrame in a
-        Jupyter Notebook. 
+        Jupyter Notebook.
 
         Note:
             The `_repr_html_` method is made available to developers
@@ -295,14 +292,14 @@ class DataFrame:
         dtype_dict = {"Column Name": col_names, "Data Type": dtypes}
         return DataFrame(dtype_dict)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: Any):
         """Select a single column with  bracket notation.
-        
+
         Use the brackets operator to simultaneously select rows and columns
-        A single string selects one column -> df['colname']
-        A list of strings selects multiple columns -> df[['colname1', 'colname2']]
-        A one column DataFrame of booleans that filters rows -> df[df_bool]
-        Row and column selection simultaneously -> df[rs, cs]
+        - A single string selects one column -> df['colname']
+        - A list of strings selects multiple columns -> df[['colname1', 'colname2']]
+        - A one column DataFrame of booleans that filters rows -> df[df_bool]
+        - Row and column selection simultaneously -> df[rs, cs]
             where cs and rs can be integers, slices, or a list of integers
             rs can also be a one-column boolean DataFrame
 
@@ -310,11 +307,62 @@ class DataFrame:
         -------
         A subset of the original DataFrame
         """
-        pass xxx
+        if isinstance(item, str):
+            return DataFrame({item: self._data[item]})
+
+        if isinstance(item, list):
+            return DataFrame({col: self._data[col] for col in item})
+
+        if isinstance(item, DataFrame):
+            if item.shape[1] != 1:
+                raise ValueError("Item must be a one-column DataFrame.")
+            bool_arr = next(iter(item._data.values()))
+            if bool_arr.dtype.kind != "b":
+                raise ValueError("Item must be a one-column boolean DataFrame.")
+            new_data = {}
+            for col, values in self._data.items():
+                new_data[col] = values[bool_arr]
+            return DataFrame(new_data)
+
+        if isinstance(item, tuple):
+            return self._getitem_tuple(item)
+
+        raise TypeError(
+            "You must pass either a string, list, DataFrame, or tuple",
+            "to the selection operator.",
+        )
 
     def _getitem_tuple(self, item):
-        # simultaneous selection of rows and cols -> df[rs, cs]
-        pass
+        """Return simultaneous selection of rows and cols -> df[rs, cs]."""
+        if len(item) != 2:
+            raise ValueError("Item Tuple must have length 2.")
+        row_selection, col_selection = item
+
+        # Row selection
+        if isinstance(row_selection, int):
+            row_selection = [row_selection]
+        elif isinstance(row_selection, DataFrame):
+            if item.shape[1] != 1:
+                raise ValueError("Item must be a one-column DataFrame.")
+            row_selection = next(iter(row_selection._data.values()))
+            if row_selection.dtype.kind != "b":
+                raise ValueError("Item must be a one-column boolean DataFrame.")
+        elif not isinstance(row_selection, (list, slice)):
+            raise TypeError(
+                "Row selection must be an int, List, slice or DataFrame."
+            )
+
+        # Col selection
+        if isinstance(col_selection, int):
+            col_selection = [self.columns[col_selection]]
+        elif isinstance(col_selection, str):
+            col_selection = [col_selection]
+
+        new_data = {}
+        for col in col_selection:
+            new_data[col] = self._data[col][row_selection]
+
+        return DataFrame(new_data)
 
     def _ipython_key_completions_(self):
         # allows for tab completion when doing df['c
