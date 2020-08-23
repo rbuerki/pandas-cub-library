@@ -6,7 +6,7 @@ __version__ = "0.0.1"
 
 class DataFrame:
     def __init__(self, data: Dict) -> None:
-        """A DataFrame holds tabular data orginzed by index and columns.
+        """A DataFrame holds tabular data organized by index and columns.
         Create it by passing a dictionary of NumPy arrays to the values
         parameter.
 
@@ -46,10 +46,10 @@ class DataFrame:
             if not isinstance(key, str):
                 raise TypeError("Keys of `data` must be strings.")
             if not isinstance(value, np.ndarray):
-                raise TypeError("Values of `data` must be numpy arrays.")
+                raise TypeError("Values of `data` must be NumPy arrays.")
             if value.ndim != 1:
                 raise ValueError(
-                    "Values of `data` must be a one-dimensional array."
+                    "Values of `data` must be one-dimensional arrays."
                 )
 
     def _check_array_lengths(self, data: Dict) -> None:
@@ -101,7 +101,7 @@ class DataFrame:
             later when creating methods just for string columns. Technically,
             this data type allows any Python objects within the array.
 
-            In this funciton we do this by checking each arrays data type
+            In this function we do this by checking each arrays data type
             `kind`. The data type `kind` is a single-character value available
             by doing `array.dtype.kind`. See the numpy docs for a list of all
             the available kinds.
@@ -126,7 +126,7 @@ class DataFrame:
 
         Note:
             Python has over 100 special methods that allow us to define
-            how your class behaves when it interacts with a builtin
+            how our class behaves when it interacts with a builtin
             function or operator. In the above example, if `df` is a
             DataFrame and a user calls `len(df)` then internally the
             `__len__` method will be called. All special methods begin
@@ -293,7 +293,7 @@ class DataFrame:
         return DataFrame(dtype_dict)
 
     def __getitem__(self, item: Any):
-        """Select a single column with  bracket notation.
+        """Select a single column with bracket notation.
 
         Use the brackets operator to simultaneously select rows and columns
         - A single string selects one column -> df['colname']
