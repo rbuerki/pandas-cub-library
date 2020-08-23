@@ -49,47 +49,6 @@ It is possible to run just a single test by appending two more colons followed b
 `$ pytest tests/test_dataframe.py::TestDataFrameCreation::test_input_types`
 
 
-
-### 19. Tab Completion for column names
-
-It is possible to get help completing column names when doing single-column selections. For instance, let's say we had a column name called 'state' and began making a column selection with `df['s]`. If we press tab right here iPython can show us a dropdown list of all the column names beginning with 's'.
-
-We do this by returning the list of possible values we want to see from the `_ipython_key_completions_` method. Complete that method now.
-
-Run `test_tab_complete` to test.
-
-### 20. Create a new column or overwrite an old column
-
-We will now have our DataFrame create a single new column or overwrite an existing one. Pandas allows for setting multiple columns at once, and even setting rows and columns simultaneously. Doing such is fairly complex and we will not implement those cases and instead focus on just single-column setting.
-
-Python allows setting via the brackets with the `__setitem__` special method. It receives two values when called, the `key` and the `value`. For instance, if we set a new column like this:
-
-```python
-df['new col'] = np.array([10, 4, 99])
-```
-
-the `key` would be 'new col' and the `value` would be the numpy array.
-
-If the `key` is not a string, raise a `NotImplementedError` stating that the DataFrame can only set a single column.
-
-If `value` is a numpy array, raise a `ValueError` if it is not 1D. Raise a different `ValueError` if the length is different than the calling DataFrame.
-
-If `value` is a DataFrame, raise a `ValueError` if it is not a single column. Raise a different `ValueError` if the length is different than the calling DataFrame. Reassign `value` to the underlying numpy array of the column.
-
-If `value` is a single integer, string, float, or boolean, use the numpy `repeat` function to reassign `value` to be an array the same length as the DataFrame with all values the same. For instance, the following should work.
-
-```python
->>> df['new col'] = 85
-```
-
-Raise a `TypeError` if `value` is not one of the above types.
-
-After completing the above, `value` will be a one-dimensional array. If it's data type `kind` is the string 'U', change its type to object.
-
-Finally, assign a new column by modifying the `_data` dictionary.
-
-Run `test_new_column` to test.
-
 ### 21. `head` and `tail` methods
 
 The `head` and `tail` methods each accept a single integer parameter `n` which is defaulted to 5. Have them return the first/last n rows.

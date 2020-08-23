@@ -388,12 +388,74 @@ class DataFrame:
         return DataFrame(new_data)
 
     def _ipython_key_completions_(self):
-        # allows for tab completion when doing df['c
-        pass
+        """Allow for tab completion when doing `df["x` in iPython. We
+        do this by returning the list of possible values we want to see
+        from the `_ipython_key_completions_` method.
+        """
+        return self.columns
 
     def __setitem__(self, key, value):
-        # adds a new column or a overwrites an old column
-        pass
+        """Create a new column or overwrite an old column. Python allows
+        setting via the brackets with the `__setitem__` special method.
+        It receives two values when called, the `key` and the `value`.
+        For instance, if we set a new column like this:
+
+        ```python
+        df['new col'] = np.array([10, 4, 99])
+        ```
+        the `key` would be 'new col' and the `value` would be the numpy array.
+
+        If `value` is a single integer, string, float, or boolean, use the numpy 
+        `repeat` function to reassign `value` to be an array the same length 
+        as the DataFrame with all values the same. For instance, the following 
+        should work:
+
+        ```python
+        >>> df['new col'] = 85
+        ```
+
+        Raises:
+            - `NotImplementedError`: If the `key` is not a string
+                (stating that the DataFrame can only set a single column)
+            - `ValueError`: If `value` is a numpy array, that is not 1D.
+            - `ValueError` If the length of the array is different than
+                the calling DataFrame.
+            - `ValueError`: If `value` is a DataFrame, that is not a single
+                column.
+            - `ValueError` if the length of the dataframe is different than
+                the calling DataFrame.
+            - `TypeError` if `value` is not one of the types mentioned above.
+        """
+        if not isinstance(key, str):
+            raise NotImplementedError("Only able to set a single column.")
+
+        if isinstance(value, np.ndarray):
+            if value.ndim != 1:
+                raise ValueError("Setting array must be 1D.")
+            if len(value) != len(self):
+                raise ValueError(
+                    "Setting array must be same length as DataFrame."
+                )
+        elif isinstance(value, DataFrame):
+            if value.shape[1] != 1:
+                raise ValueError("Setting DataFrame must be one column.")
+            if len(value) != len(self):
+                raise ValueError(
+                    "Setting and calling DataFrames must be the same length."
+                )
+            value = next(iter(value._data.values()))
+        elif isinstance(value, (int, str, float, bool)):
+            value = np.repeat(value, len(self))
+        else:
+            raise TypeError(
+                "Setting value must either be a numpy array, "
+                "DataFrame, integer, string, float, or boolean."
+            )
+
+        if value.dtype.kind == "U":
+            value = value.astype("O")
+
+        self._data[key] = value
 
     def head(self, n=5):
         """
