@@ -457,33 +457,27 @@ class DataFrame:
 
         self._data[key] = value
 
-    def head(self, n=5):
+    def head(self, n: int = 5) -> Any:
+        """Return the first n rows of the actual dataframe.
+        Args:
+            n (int, optional): Number of rows to return from top.
+                Defaults to 5.
+
+        Returns:
+            pd.DataFrame: First n rows.
         """
-        Return the first n rows
+        return self[:n, :]
 
-        Parameters
-        ----------
-        n: int
+    def tail(self, n: int = 5) -> Any:
+        """Return the last n rows of the actual dataframe.
+        Args:
+            n (int, optional): Number of rows to return from bottom.
+                Defaults to 5.
 
-        Returns
-        -------
-        DataFrame
+        Returns:
+            DataFrame: Bottom n rows.
         """
-        pass
-
-    def tail(self, n=5):
-        """
-        Return the last n rows
-
-        Parameters
-        ----------
-        n: int
-
-        Returns
-        -------
-        DataFrame
-        """
-        pass
+        return self[-n:, :]
 
     # ### Aggregation Methods ####
 
@@ -523,17 +517,22 @@ class DataFrame:
     def _agg(self, aggfunc):
         """
         Generic aggregation function that applies the
-        aggregation to each column
+        aggregation to each column.
 
-        Parameters
-        ----------
-        aggfunc: str of the aggregation function name in NumPy
+        Args:
+            aggfunc: str of the aggregation function name in NumPy
 
-        Returns
-        -------
-        A DataFrame
+        Returns:
+            DataFrame with aggregation
         """
-        pass
+        new_data = {}
+        for col, values in self._data.items():
+            try:
+                val = aggfunc(values)
+            except TypeError:
+                continue
+            new_data[col] = np.array([val])
+        return DataFrame(new_data)
 
     def isna(self):
         """

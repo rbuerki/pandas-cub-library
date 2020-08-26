@@ -49,41 +49,6 @@ It is possible to run just a single test by appending two more colons followed b
 `$ pytest tests/test_dataframe.py::TestDataFrameCreation::test_input_types`
 
 
-### 21. `head` and `tail` methods
-
-The `head` and `tail` methods each accept a single integer parameter `n` which is defaulted to 5. Have them return the first/last n rows.
-
-Run `test_head_tail` to complete this.
-
-### 22. Generic aggregation methods
-
-We will now implement several methods that perform an aggregation. These methods all return a single value for each column. The following aggregation methods are defined.
-
-* min
-* max
-* mean
-* median
-* sum
-* var
-* std
-* all
-* any
-* argmax - index of the maximum
-* argmin - index of the minimum
-
-We will only be performing these aggregations column-wise and not row-wise. Pandas enables users to perform both row and column aggregations.
-
-If you look at our source code, you will see all of the aggregation methods already defined. You will not have to modify any of these methods individually. Instead, they all call the underlying `_agg` method passing it the numpy function.
-
-Complete the generic method `_agg` that accepts an aggregation function.
-
-Iterate through each column of your DataFrame and pass the underlying array to the aggregation function. Return a new DataFrame with the same number of columns, but with just a single row, the value of the aggregation.
-
-String columns with missing values raise a `TypeError`. Except this error and don't return columns where the aggregation cannot be found.
-
-Defining just the `_agg` method will make all the other aggregation methods work.
-
-All the aggregation methods have their own tests in a separate class named `TestAggregation`. They are all named similarly with 'test_' preceding the name of the aggregation. Run all the tests at once.
 
 ### 23. `isna` method
 
